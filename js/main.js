@@ -74,6 +74,54 @@
   var yearEl = document.getElementById('year');
   if (yearEl) yearEl.textContent = new Date().getFullYear();
 
+  /* ---- Condition panel ---- */
+  var conditionOverlay = document.getElementById('conditionOverlay');
+  var conditionButtons = document.querySelectorAll('.condition-action');
+  var templatesWrap = document.getElementById('conditionTemplates');
+  var panelContent = conditionOverlay ? conditionOverlay.querySelector('.condition-panel-content') : null;
+  var closeCondition = function () {
+    if (!conditionOverlay) return;
+    conditionOverlay.classList.remove('show');
+    conditionOverlay.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+    if (panelContent) panelContent.innerHTML = '';
+  };
+  conditionButtons.forEach(function (button) {
+    button.addEventListener('click', function () {
+      if (!conditionOverlay || !templatesWrap || !panelContent) return;
+      var id = button.getAttribute('data-condition');
+      var tpl = templatesWrap.querySelector('.condition-template[data-condition="' + id + '"]');
+      if (!tpl) return;
+      // copy template content into panel
+      panelContent.innerHTML = tpl.innerHTML;
+      // ensure the panel title has the expected id for aria
+      var h2 = panelContent.querySelector('h2');
+      if (h2) h2.id = 'conditionPanelTitle';
+      conditionOverlay.classList.add('show');
+      conditionOverlay.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+      // focus close button for accessibility
+      var closeBtn = conditionOverlay.querySelector('.close-btn');
+      if (closeBtn) closeBtn.focus();
+    });
+  });
+  if (conditionOverlay) {
+    conditionOverlay.addEventListener('click', function (event) {
+      if (event.target === conditionOverlay) {
+        closeCondition();
+      }
+    });
+    var closeBtn = conditionOverlay.querySelector('.close-btn');
+    if (closeBtn) {
+      closeBtn.addEventListener('click', closeCondition);
+    }
+    document.addEventListener('keydown', function (event) {
+      if (event.key === 'Escape' && conditionOverlay.classList.contains('show')) {
+        closeCondition();
+      }
+    });
+  }
+
   /* ---- Photo slideshow ---- */
   var slideshow = document.getElementById('slideshow');
   if (slideshow) {
@@ -83,7 +131,7 @@
     var nextBtn = slideshow.querySelector('.slide-nav.next');
     var current = 0;
     var timer = null;
-    var INTERVAL = 5000;
+    var INTERVAL = 2000;
 
     if (slides.length > 1) {
       // Build dots
