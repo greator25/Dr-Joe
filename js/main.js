@@ -79,11 +79,28 @@
   var conditionButtons = document.querySelectorAll('.condition-action');
   var templatesWrap = document.getElementById('conditionTemplates');
   var panelContent = conditionOverlay ? conditionOverlay.querySelector('.condition-panel-content') : null;
+  var panelScrollBtn = document.getElementById('panelScrollBtn');
+  var updateScrollBtn = function () {
+    if (!panelContent || !panelScrollBtn) return;
+    var remaining = panelContent.scrollHeight - panelContent.scrollTop - panelContent.clientHeight;
+    if (remaining > 16) {
+      panelScrollBtn.classList.add('show');
+    } else {
+      panelScrollBtn.classList.remove('show');
+    }
+  };
+  if (panelContent) panelContent.addEventListener('scroll', updateScrollBtn);
+  if (panelScrollBtn && panelContent) {
+    panelScrollBtn.addEventListener('click', function () {
+      panelContent.scrollBy({ top: panelContent.clientHeight * 0.8, behavior: 'smooth' });
+    });
+  }
   var closeCondition = function () {
     if (!conditionOverlay) return;
     conditionOverlay.classList.remove('show');
     conditionOverlay.setAttribute('aria-hidden', 'true');
     document.body.style.overflow = '';
+    if (panelScrollBtn) panelScrollBtn.classList.remove('show');
     if (panelContent) panelContent.innerHTML = '';
   };
   conditionButtons.forEach(function (button) {
@@ -100,6 +117,9 @@
       conditionOverlay.classList.add('show');
       conditionOverlay.setAttribute('aria-hidden', 'false');
       document.body.style.overflow = 'hidden';
+      // reset scroll to top and refresh the scroll-down button
+      if (panelContent) panelContent.scrollTop = 0;
+      updateScrollBtn();
       // focus close button for accessibility
       var closeBtn = conditionOverlay.querySelector('.close-btn');
       if (closeBtn) closeBtn.focus();

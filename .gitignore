@@ -11,3 +11,9 @@ desktop.ini
 # Dependency / build dirs (in case added later)
 node_modules/
 dist/
+
+# Firebase
+.firebase/
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
